@@ -1,5 +1,6 @@
 {
   "title": "Gravity Switch",
+  "description": "Koule umí padat. Ty jí říkáš kam.",
   "type": "x:game",
   "card": "custom"
 }

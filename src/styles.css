@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --color-bg: #07080c;
-  --color-surface: #12141a;
-  --color-surface-2: #1a1d26;
-  --color-fg: #e8eaef;
-  --color-muted: #8b90a0;
-  --color-subtle: #5c6270;
-  --color-border: #2a2e3a;
-  --color-ball: #4ff0d4;
-  --color-goal: #8eb6ff;
-  --color-void: #c4454a;
-  --color-ring: #4ff0d4;
+  --color-bg: #101014;
+  --color-surface: #18181e;
+  --color-surface-2: #22222a;
+  --color-fg: #eeeae4;
+  --color-muted: #8e8a84;
+  --color-subtle: #5c5854;
+  --color-border: #2c2c34;
+  --color-ball: #ff5c38;
+  --color-goal: #efe6d6;
+  --color-void: #c45c48;
+  --color-ring: #ff5c38;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -24,6 +25,7 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --motion-quick: 150ms;
   --motion-fast: 250ms;
+  --motion-spin: 320ms;
 }
 
 @layer base {

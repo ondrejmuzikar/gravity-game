@@ -1,22 +1,17 @@
 import { currentLevel } from "./sim";
-import {
-  BALL_R,
-  GRAVITY_DIRS,
-  WORLD_H,
-  WORLD_W,
-  type SimState,
-} from "./types";
+import { BALL_R, GRAVITY_DIRS, WORLD_H, WORLD_W, type SimState } from "./types";
 
-const BG = "#07080c";
-const SOLID = "#1a2030";
-const SOLID_EDGE = "#3a465c";
-const SOLID_INNER = "#242c3c";
-const VOID = "#2a0e14";
-const VOID_GLOW = "#c4454a";
-const BALL = "#4ff0d4";
-const BALL_CORE = "#e8fffa";
-const GOAL = "#8eb6ff";
-const GOAL_CORE = "#dce8ff";
+const BG = "#101014";
+const SOLID = "#1c1c24";
+const SOLID_EDGE = "#3a3a46";
+const SOLID_INNER = "#16161c";
+const VOID = "#2a1214";
+const VOID_GLOW = "#c45c48";
+const BALL = "#ff5c38";
+const BALL_CORE = "#ffd2c4";
+const BALL_SHADOW = "#8a2818";
+const GOAL = "#efe6d6";
+const GOAL_CORE = "#ffffff";
 
 const motes: { x: number; y: number; r: number; a: number }[] = Array.from({ length: 48 }, (_, i) => ({
   x: ((i * 97) % WORLD_W) + (i % 7) * 3,
@@ -63,7 +58,7 @@ export function draw(
     ctx.fillRect(0, 0, WORLD_W, WORLD_H);
   }
   if (state.status === "won") {
-    ctx.fillStyle = `rgba(8, 18, 22, ${0.12 * state.winT})`;
+    ctx.fillStyle = `rgba(16, 12, 10, ${0.14 * state.winT})`;
     ctx.fillRect(0, 0, WORLD_W, WORLD_H);
   }
 }
@@ -75,7 +70,7 @@ function drawField(
   flash: number,
 ) {
   ctx.save();
-  ctx.globalAlpha = 0.07 + flash * 0.1;
+  ctx.globalAlpha = 0.06 + flash * 0.1;
   ctx.strokeStyle = BALL;
   ctx.lineWidth = 1;
   const gap = 48;
@@ -106,7 +101,7 @@ function drawMotes(ctx: CanvasRenderingContext2D, time: number) {
   ctx.save();
   for (const m of motes) {
     const y = (m.y + Math.sin(time * 0.3 + m.x) * 6 + WORLD_H) % WORLD_H;
-    ctx.fillStyle = `rgba(200, 210, 220, ${m.a})`;
+    ctx.fillStyle = `rgba(232, 220, 208, ${m.a})`;
     ctx.beginPath();
     ctx.arc(m.x, y, m.r, 0, Math.PI * 2);
     ctx.fill();
@@ -151,7 +146,7 @@ function drawVoid(
   ctx.fillStyle = VOID;
   ctx.fill();
   ctx.clip();
-  ctx.strokeStyle = "rgba(196, 69, 74, 0.35)";
+  ctx.strokeStyle = "rgba(196, 92, 72, 0.35)";
   ctx.lineWidth = 2;
   const off = (time * 22) % 14;
   for (let i = -v.h; i < v.w + v.h; i += 14) {
@@ -186,7 +181,7 @@ function drawGoal(
 
   ctx.beginPath();
   ctx.arc(0, 0, r * 1.85, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(142, 182, 255, 0.1)";
+  ctx.fillStyle = "rgba(239, 230, 214, 0.1)";
   ctx.fill();
 
   ctx.beginPath();
@@ -226,7 +221,7 @@ function drawTrail(ctx: CanvasRenderingContext2D, state: SimState, alpha: number
     const t = (i + 1) / (state.trail.length + 1);
     ctx.beginPath();
     ctx.arc(p.x, p.y, BALL_R * t * 0.55, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(79, 240, 212, ${0.08 * t})`;
+    ctx.fillStyle = `rgba(255, 92, 56, ${0.1 * t})`;
     ctx.fill();
   }
   void alpha;
@@ -241,8 +236,8 @@ function drawParticles(ctx: CanvasRenderingContext2D, state: SimState) {
       p.hue === "red"
         ? `rgba(220, 80, 84, ${0.7 * a})`
         : p.hue === "ice"
-          ? `rgba(180, 210, 255, ${0.7 * a})`
-          : `rgba(79, 240, 212, ${0.75 * a})`;
+          ? `rgba(239, 230, 214, ${0.7 * a})`
+          : `rgba(255, 92, 56, ${0.75 * a})`;
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size * (0.5 + a), 0, Math.PI * 2);
@@ -267,7 +262,7 @@ function drawBall(
 
   ctx.beginPath();
   ctx.arc(0, 0, BALL_R * 2.1, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(79, 240, 212, ${0.16 + state.switchFlash * 0.2})`;
+  ctx.fillStyle = `rgba(255, 92, 56, ${0.16 + state.switchFlash * 0.2})`;
   ctx.fill();
 
   ctx.save();
@@ -275,14 +270,13 @@ function drawBall(
   const grd = ctx.createRadialGradient(-4, -5, 2, 0, 0, BALL_R);
   grd.addColorStop(0, BALL_CORE);
   grd.addColorStop(0.45, BALL);
-  grd.addColorStop(1, "#1a8f80");
+  grd.addColorStop(1, BALL_SHADOW);
   ctx.beginPath();
   ctx.arc(0, 0, BALL_R, 0, Math.PI * 2);
   ctx.fillStyle = grd;
   ctx.fill();
   ctx.restore();
 
-  // Gravity chevrons around the ball
   ctx.strokeStyle = BALL;
   ctx.lineWidth = 2;
   ctx.lineCap = "round";

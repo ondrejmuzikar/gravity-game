@@ -1,4 +1,3 @@
-import { LEVELS } from "./levels";
 import {
   BALL_R,
   GRAVITY_ACCEL,
@@ -7,6 +6,7 @@ import {
   WORLD_H,
   WORLD_W,
   type Level,
+  type LoseReason,
   type Particle,
   type PlayStatus,
   type Rect,
@@ -99,10 +99,15 @@ function spawnParticles(
   }
 }
 
-export function makeState(levelIndex: number): SimState {
-  const level = LEVELS[levelIndex] ?? LEVELS[0];
+export function makeState(
+  level: Level,
+  opts?: { levelIndex?: number; switchLimit?: number | null },
+): SimState {
   return {
-    levelIndex,
+    levelIndex: opts?.levelIndex ?? 0,
+    level,
+    switchLimit: opts?.switchLimit ?? null,
+    loseReason: null,
     ball: { x: level.start.x, y: level.start.y },
     vel: { x: 0, y: 0 },
     prev: { x: level.start.x, y: level.start.y },
@@ -123,11 +128,15 @@ export function makeState(levelIndex: number): SimState {
 }
 
 export function currentLevel(state: SimState): Level {
-  return LEVELS[state.levelIndex] ?? LEVELS[0];
+  return state.level;
 }
 
 export function queueSwitch(state: SimState): boolean {
   if (state.status !== "playing") return false;
+  if (state.switchLimit != null && state.switches >= state.switchLimit) {
+    die(state, "budget");
+    return false;
+  }
   state.gravityIndex = (state.gravityIndex + 1) % GRAVITY_DIRS.length;
   state.switches += 1;
   state.switchFlash = 1;
@@ -136,7 +145,7 @@ export function queueSwitch(state: SimState): boolean {
   const tangent = g.x * state.vel.y - g.y * state.vel.x;
   state.vel.x = -g.y * tangent * 0.35 + g.x * 40;
   state.vel.y = g.x * tangent * 0.35 + g.y * 40;
-  spawnParticles(state, state.ball.x, state.ball.y, g.x, g.y, 10, "cyan", 220);
+  spawnParticles(state, state.ball.x, state.ball.y, g.x, g.y, 10, "ember", 220);
   return true;
 }
 
@@ -183,7 +192,7 @@ export function step(state: SimState, dt: number): { landed: boolean; died: bool
     return out;
   }
 
-  const level = currentLevel(state);
+  const level = state.level;
   const g = GRAVITY_DIRS[state.gravityIndex];
   const wasGrounded = state.grounded;
 
@@ -215,7 +224,7 @@ export function step(state: SimState, dt: number): { landed: boolean; died: bool
 
   for (const v of level.voids) {
     if (circleHitsRect(state.ball.x, state.ball.y, BALL_R * 0.72, v)) {
-      die(state);
+      die(state, "void");
       out.died = true;
       break;
     }
@@ -227,7 +236,7 @@ export function step(state: SimState, dt: number): { landed: boolean; died: bool
     state.ball.y < -40 ||
     state.ball.y > WORLD_H + 40
   ) {
-    die(state);
+    die(state, "void");
     out.died = true;
   }
 
@@ -243,7 +252,7 @@ export function step(state: SimState, dt: number): { landed: boolean; died: bool
       state.vel.y *= 0.2;
       state.trauma = Math.min(1, state.trauma + 0.45);
       spawnParticles(state, level.goal.x, level.goal.y, 0, -1, 22, "ice", 280);
-      spawnParticles(state, level.goal.x, level.goal.y, 0, 1, 10, "cyan", 220);
+      spawnParticles(state, level.goal.x, level.goal.y, 0, 1, 10, "ember", 220);
       out.won = true;
     }
   }
@@ -270,9 +279,10 @@ export function step(state: SimState, dt: number): { landed: boolean; died: bool
   return out;
 }
 
-function die(state: SimState) {
+function die(state: SimState, reason: LoseReason) {
   if (state.status !== "playing") return;
   state.status = "lost";
+  state.loseReason = reason;
   state.loseT = 0;
   state.trauma = 1;
   spawnParticles(state, state.ball.x, state.ball.y, 0, -1, 18, "red", 340);
@@ -297,11 +307,13 @@ export function snapshotHud(state: SimState): {
   gravityIndex: number;
   status: PlayStatus;
   grounded: boolean;
+  loseReason: LoseReason;
 } {
   return {
     switches: state.switches,
     gravityIndex: state.gravityIndex,
     status: state.status,
     grounded: state.grounded,
+    loseReason: state.loseReason,
   };
 }

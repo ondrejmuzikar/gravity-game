@@ -11,10 +11,10 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: APP_NAME },
-      { name: "theme-color", content: "#07080c" },
+      { name: "theme-color", content: "#101014" },
       {
         name: "description",
-        content: "Puzzle plošinovka: přepínej gravitaci a dostaň kuličku do cíle.",
+        content: "Koule umí padat. Ty jí říkáš kam. Dvacet místností a nekonečný běh.",
       },
     ],
     links: [
@@ -24,7 +24,7 @@ export const Route = createRootRoute({
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;600;700&family=Figtree:wght@400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap",
       },
     ],
   }),
